@@ -1,0 +1,7 @@
+Flask
+Flask-Session
+tensorflow-cpu
+numpy
+Pillow
+gunicorn
+h5py
