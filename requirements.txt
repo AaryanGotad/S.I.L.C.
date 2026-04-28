@@ -1,7 +1,7 @@
 Flask
 Flask-Session
-tensorflow==2.15.0
-numpy
+tensorflow-cpu==2.16.1
+numpy<2.0.0
 Pillow
 gunicorn
 h5py
