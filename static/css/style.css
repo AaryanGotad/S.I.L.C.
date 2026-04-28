@@ -1,0 +1,328 @@
+:root {
+    /* DARK THEME */
+    --surface: #111413;
+    --on-surface: #e1e3e1;
+    --on-surface-variant: #bfcaba;
+    --primary: #88d982;
+    --secondary: #99cbff;
+    --primary-container: #2e7d32;
+    --secondary-container: rgba(1, 119, 189, 0.4);
+    --glass-bg: rgba(255, 255, 255, 0.03);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --nav-bg: rgba(17, 20, 19, 0.8);
+    --blob-opacity: 0.25;
+    --shadow-color: rgba(0, 0, 0, 0.3);
+}
+
+body.light-mode {
+    /* LIGHT THEME */
+    --surface: #f8faf8;
+    --on-surface: #191c1b;
+    --on-surface-variant: #40493d;
+    --primary: #0d631b;
+    --secondary: #00629e;
+    --primary-container: #cbffc2;
+    --secondary-container: rgba(117, 5, 255, 0.42);
+    --glass-bg: rgba(255, 255, 255, 0.7);
+    --glass-border: rgba(191, 202, 186, 0.3);
+    --nav-bg: rgba(248, 250, 248, 0.8);
+    --blob-opacity: 0.10;
+    --shadow-color: rgba(0, 0, 0, 0.05);
+}
+
+body.light-mode .text-primary-fixed-dim {
+    color: #1b6d24;
+}
+
+body.light-mode .text-on-surface-variant {
+    color: var(--on-surface-variant);
+}
+
+body.light-mode .opacity-50,
+body.light-mode .opacity-60 {
+    opacity: 0.8
+}
+
+body.light-mode .bg-secondary-container {
+    background-color: rgba(98, 100, 254, 0.15);
+}
+
+body.light-mode .border-white\/10 {
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+body.light-mode .bg-white\/5 {
+    background-color: rgba(0, 0, 0, 0.03);
+}
+
+body.light-mode .bg-primary-fixed\/20 {
+    background-color: rgba(13, 99, 27, 0.1);
+}
+
+body {
+    font-family: "Inter", sans-serif;
+    background-color: var(--surface);
+    color: var(--on-surface);
+    transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+h1, h2, h3 {
+    font-family: 'Manrope', sans-serif;
+}
+
+.font-serif {
+    font-family: 'Playfair Display', serif;
+    /* This ensures the 'I' has the top/bottom bars clearly visible */
+    font-style: italic;
+    font-weight: 900;
+}
+
+.glass-panel {
+    background: var(--glass-bg) !important;
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    border: 1px solid var(--glass-border) !important;
+    box-shadow: 0 20px 50px var(--shadow-color) !important;
+}
+
+.material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+.btn-primary-gradient {
+    background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%);
+    box-shadow: 0 4px 15px rgba(46, 125, 50, 0.3);
+    letter-spacing: 0.02em;
+}
+
+.btn-primary-gradient:hover {
+    box-shadow: 0 6px 20px rgba(46, 125, 50, 0.4);
+    transform: translateY(-1px);
+}
+
+.bg-blob {
+    position: fixed;
+    width: 40vw;
+    height: 40vw;
+    border-radius: 50%;
+    filter: blur(100px);
+    z-index: 0;
+    opacity: var(--blob-opacity);
+    pointer-events: none;
+}
+
+.bg-secondary-container {
+    background: var(--secondary-container);
+}
+
+.divider-line {
+    width: 2px;
+    height: 54px;
+    border-radius: 99px;
+    opacity: 0.4;
+    transition: opacity 0.4s ease, background 0.4s ease;
+}
+
+.divider-line.top {
+    background: linear-gradient(to bottom, transparent, var(--primary));
+}
+
+.divider-line.bottom {
+    background: linear-gradient(to top, transparent, var(--primary));
+}
+
+.flex-1 .group {
+    border-radius: 2rem;
+    background: black;
+    overflow: hidden;
+    transition: box-shadow 0.6s ease, border-color 0.6s ease, transform 0.6s ease;
+    border: 1px solid var(--glass-border);
+}
+
+body.flex-1.1-full.max-w-\[320px\] .group {
+    background: white;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.flex-1.w-full.max-w-\[320px\] .group:hover {
+    transform: scale(1.02);
+}
+
+body.flex-1.w-full.max-w-\[320px\] .group:hover {
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.05)
+}
+
+body.light-mode .divided-line {
+    opacity: 0.8;
+}
+
+#dropZone {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border-color: var(--glass-border);
+}
+
+#dropZone:hover, #dropZone.active {
+    border-color: var(--primary) !important;
+    background: rgba(136, 217, 130, 0.03);
+    box-shadow: 0 0 30px rgba(136, 217, 130, 0.1);
+    transform: translateY(-2px);
+}
+
+body.light-mode #dropZone.hover,
+body.light-mode #dropZone.active {
+    background-color: rgba(13, 99, 27, 0.02);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
+}
+
+#dropZone.hover .text-primary,
+#dropZone.active .text-primary {
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 10px var(--primary));
+}
+
+main, nav, footer {
+    position: relative;
+    z-index: 10;
+}
+
+footer span.heart {
+    color: #e25555;
+    display: inline-block;
+    animation: heartbeat 1.5s infinite;
+}
+
+@keyframes heartbeat {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+footer {
+    background-color: var(--nav-bg) !important;
+}
+
+footer a {
+    position: relative;
+    bottom: 0;
+}
+
+footer a:hover {
+    bottom: 2px;
+}
+
+#confBar {
+    transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1),
+                background-color 1.2s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#reSec {
+    animation: fadeIn 0.8s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Custom squircircle style rounding for larger images */
+.rounded-3xl {
+    border-radius: 2rem;
+}
+
+/* Subtle scanning effect for the Model Input */
+#PrepImagePreview {
+    filter: contrast(1.1) brightness(1.1);
+    background-size: 4px 4px;
+    background-image: linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                      linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+}
+
+/* Tracking-widest for that premium topography feel */
+.tracking-\[0\.3em\] {
+    letter-spacing: 0.3em;
+}
+
+#stickyNav.active {
+    background-color: var(--nav-bg);
+    backdrop-filter: blur(30px);
+    border-bottom: 1px solid var(--glass-border);
+}
+
+
+/* Tooltip Animation */
+.group\/infor .glass-panel {
+    transform: translateY(-5px);
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.4s ease,
+                visibility 0.4s ease;
+}
+
+.group\/info:hover .glass-panel {
+    transform: translateY(0);
+}
+
+/* Sticky Active state for tooltip */
+#infoWrapper.is-active #infoTooltip {
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    transform: translateY(0);
+}
+
+/* Default state transition for hover */
+#infoTooltip {
+    transform: translateY(-5px);
+}
+
+.group\/info:hover #inforTooltip {
+    transform: translateY(0);
+}
+
+/* Guidelines List Styling */
+body.light-mode ul li p {
+    color: var(--on-surface-variant);
+}
+
+body.light-mode ul li span {
+    color: var(--primary);
+}
+
+/* Hover lift for the guidline cards */
+section.mt-20 .glass-panel {
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+
+section.mt-20 .glass-panel:hover {
+    transform: translateY(-4px);
+}
+
+/* Ensuring the image preview doesn't overflow its container */
+#imagePreview {
+    max-height: 50vh; /* Prevents the image from being taller than half the screen */
+    width: 100%;
+    object-fit: contain;
+}
+
+@media (max-width: 768px) {
+    footer {
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+        text-align: center;
+    }
+
+    footer.flex-col {
+        align-items: center;
+    }
+
+    footer .flex-wrap {
+        justify-content: center;
+        margin-top: 2rem;
+        gap: 1.5rem; /* better thumb spacing for mobile users */
+    }
+
+    /* Adding breathing room for the absolute label on mobile */
+    #previewContainer {
+        padding-top: 5rem !important; /* Extra top padding specifically to clear the absolute label */
+    }
+}

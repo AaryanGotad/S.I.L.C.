@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+        <title>S.I.L.C. | Satellite Image Land Classification</title>
+        <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+        <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+
+        <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700&family=Playfair+Display:ital,wght@1,900&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,900&display=swap" rel="stylesheet">
+
+        <script id="tailwind-config">
+            // Fixed config name
+            tailwind.config = {
+                darkMode: "class",
+                theme: {
+                    extend: {
+                        colors: {
+                            "on-primary-fixed-variant": "#005312",
+                            "primary-fixed": "#a3f69c",
+                            "surface-container-lowest": "#0b0f0e",
+                            "on-surface-variant": "var(--on-surface-variant)",
+                            "surface": "var(--surface)",
+                            "surface-dim": "#111413",
+                            "on-primary-container": "#cbffc2",
+                            "on-secondary-container": "#f6f8ff",
+                            "tertiary-fixed": "#cbe7f5",
+                            "on-secondary-fixed-variant": "#004a78",
+                            "secondary-container": "#0177bd",
+                            "surface-bright": "#363a39",
+                            "primary-fixed-dim": "#88d982",
+                            "on-tertiary-fixed": "#021f29",
+                            "surface-tint": "#88d982",
+                            "surface-container-low": "#191c1b",
+                            "inverse-primary": "#1b6d24",
+                            "on-tertiary": "#19343e",
+                            "inverse-on-surface": "#2e3130",
+                            "on-secondary": "#003355",
+                            "on-tertiary-fixed-variant": "#304a55",
+                            "outline-variant": "#40493d",
+                            "on-primary": "#003909",
+                            "on-error": "#690005",
+                            "tertiary-fixed-dim": "#afcbd8",
+                            "on-primary-fixed": "#002204",
+                            "surface-variant": "#323534",
+                            "on-background": "#e1e3e1",
+                            "secondary-fixed-dim": "#99cbff",
+                            "surface-container-high": "#272b2a",
+                            "error-container": "#93000a",
+                            "surface-container-highest": "#323534",
+                            "on-secondary-fixed": "#001d34",
+                            "inverse-surface": "#e1e3e1",
+                            "tertiary": "#afcbd8",
+                            "on-tertiary-container": "#e2f5ff",
+                            "primary-container": "#2e7d32",
+                            "tertiary-container": "#58727e",
+                            "background": "#111413",
+                            "surface-container": "#1d201f",
+                            "secondary-fixed": "#cfe5ff",
+                            "primary": "var(--primary)",
+                            "secondary": "var(--secondary)",
+                            "glass-border": "var(--glass-border)",
+                            "outline": "#8a9485",
+                            "on-surface": "var(--on-surface)",
+                            "on-error-container": "#ffdad6",
+                            "error": "#ffb4ab"
+                        },
+                        borderRadius: {
+                            DEFAULT: "0.25rem",
+                            lg: "0.5rem",
+                            xl: "0.75rem",
+                            full: "9999px"
+                        },
+                        fontFamily: {
+                            headline: ["Manrope"],
+                            body: ["Inter"],
+                            label: ["Inter"],
+                            display: "Manrope"
+                        }
+                    }
+                }
+            };
+        </script>
+
+        <!-- CSS stylesheet ref -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    </head>
+
+    <body class="bg-surface text-on-surface min-h-screen flex flex-col relative overflow-x-hidden">
+
+        <div class="bg-blob bg-primary top-[-10%] left-[-10%]"></div>
+        <div class="bg-blob bg-secondary bottom-[-10%] right-[-10%]"></div>
+        <div class="bg-blob bg-primary-container top-[40%] right-[10%]"></div>
+
+        <nav id="stickyNav" class="fixed top-0 left-0 w-full z-50 transition-all duration-300 py-4 px-6 md:px-12">
+            <div class="max-w-6xl mx-auto flex items-center justify-between">
+                <div class="flex items-center gap-1 cursor-pointer" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+                    <h1 class="text-xl md:text-2xl font-black tracking-tighter text-on-surface">
+                        <span class="text-primary">S.</span>
+                        <span class="font-serif italic text-primary-fixed-dim px-0.5">I</span>
+                        <span class="text-primary">. L. C.</span>
+                    </h1>
+                </div>
+
+                <button id="themeToggle" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors border border-white/10">
+                    <span class="material-symbols-outlined text-[20px]" id="themeIcon">light_mode</span>
+                </button>
+            </div>
+        </nav>
+
+        <main class="flex-grow pt-32 pb-20 px-6 max-w-6xl mx-auto w-full z-10">
+            <div class="text-center mb-16 space-y-6">
+                <div class="inline-block">
+                    <h1 class="text-5xl md:text-7xl font-black tracking-widest text-on-surface flex items-center justify-center gap-1">
+                        <span class="text-primary">S.</span>
+                        <span class="font-serif italic text-primary-fixed-dim px-1">I</span>
+                        <span class="text-primary">. L. C.</span>
+                    </h1>
+                    <div class="h-1 w-12 bg-primary mx-auto mt-2 rounded-full opacity-50"></div>
+                </div>
+
+                <p class="text-xl md:text-2xl text-on-surface font-bold tracking-tight max-w-2xl mx-auto">
+                    Turn Satellite Data into <span class="text-secondary">Insights</span>
+                </p>
+
+                <div class="max-w-2xl mx-auto space-y-4">
+                    <p class="text-base md:text-lg text-on-surface-variant leading-relaxed font-medium">
+                        Upload any satellite image and let our neural network do the work.
+                        S.I.L.C. provides instant classification of land types, helping you understand terrestrial changes at a glance.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Image Upload Section -->
+            <section class="glass-panel rounded-2xl p-1 shadow-sm overflow-hidden">
+                <input type="file" id="fileInput" accept="image/*" style="display:none;">
+
+                <div id="dropZone"
+                     class="border-2 border-dashed border-glass-border rounded-2xl p-12 text-center group transition-all cursor-pointer">
+                    <div class="mb-6 inline-flex p-4 rounded-full bg-primary-fixed/20 text-primary group-hover:scale-110 transition-transform backdrop-blur-md border border-white/5">
+                        <span class="material-symbols-outlined text-4xl">cloud_upload</span>
+                    </div>
+
+                    <h3 class="text-xl font-bold text-on-surface mb-2">
+                        Upload Satellite Image
+                    </h3>
+
+                    <p class="text-on-surface-variant mb-8 text-sm">
+                        Drag and drop an image or click to browse files
+                    </p>
+
+                    <button type="button" id="browseBtn" class="btn-primary-gradient text-on-primary px-8 py-3 rounded-md font-semibold text-sm shadow-lg shadow-primary/20 hover:opacity-90 active:scale-95 transition-all">
+                        Select File
+                    </button>
+                </div>
+
+                <!-- Preview window -->
+                <div id="previewContainer"
+                     class="glass-panel rounded-3xl p-8 md:p-12 mt-16 transition-all duration-700 relative"
+                     style="display: none;">
+
+                    <div class="absolute top-6 left-8 md:static flex items-center gap-3 mb-8 opacity-60">
+                        <span class="material-symbols-outlined text-sm">visibility</span>
+                        <h4 class="text-[10px] font-bold uppercase tracking-[0.2em]">Image Preview</h4>
+                    </div>
+
+                    <div class="flex flex-col md:flex-row items-center justify-center gap-10 lg:gap-20">
+
+                        <div class="relative group w-full max-w-[400px]">
+                            <div class="aspect-square md:aspect-auto rounded-3xl overflow-hidden ring-1 ring-white/20 shadow-2xl bg-black/20">
+                                <img id="imagePreview"
+                                    src=""
+                                    alt="Image Preview"
+                                    class="w-full h-full object-cover rounded-3xl"
+                                    style="display: none;">
+                            </div>
+                            <div class="absolute -top-2 -left-2 w-6 h-6 border-t-2 border-l-2 border-primary/40 rounded-tl-3xl"></div>
+                            <div class="absolute -bottom-2 -right-2 w-6 h-6 border-b-2 border-r-2 border-primary/40 rounded-br-3xl"></div>
+                        </div>
+
+                        <div class="flex flex-col items-center md:items-start text-center md:text-left space-y-6 max-w-xs">
+                            <div class="space-y-2">
+                                <h3 class="text-2xl md:text-3xl font-black tracking-tight text-on-surface">Ready for Analysis</h3>
+                                <p class="text-sm text-on-surface-variant leading-relaxed font-medium">
+                                    The neural network is primed to classify the terrestrial features in this segment.
+                                </p>
+                            </div>
+                            <button type="button" id="sendBtn" class="btn-primary-gradient w-full md:w-auto px-10 py-4 rounded-xl font-bold text-sm text-white transition-all shadow-xl shadow-primary/20">
+                                Run Classification
+                            </button>
+
+                            <button type="button"
+                                    onclick="window.location.reload()"
+                                    class="text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant opacity-40 hover:opacity-100 transition-opacity">
+                                Clear Selection
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Model results -->
+            <div id="reSec"
+                 style="display: None;"
+                 class="glass-panel rounded-2xl p-8 shadow-xl shadow-black/20 mt-12">
+
+                <div class="flex items-center justify-between mb-10 relative">
+                    <span class="material-symbols-outlined text-outline">analytics</span>
+
+                    <div class="flex items-center gap-4">
+                        <div class="relative group/info" id="infoWrapper">
+                            <button id="infoToggleBtn" class="flex items-center justify-center w-8 h-8 rounded-full hover:bg-white/5 transition-colors">
+                                <span class="material-symbols-outlined text-primary text-[20px] cursor-pointer">
+                                    info
+                                </span>
+                            </button>
+
+                            <div id="infoTooltip" class="absolute right-0 top-10 w-80 p-5 glass-panel rounded-2xl text-[11px] leading-relaxed opacity-0 invisible transition-all duration-300 z-[100] shadow-2xl pointer-events-none group-hover/info:opacity-100 group-hover/info:visible">
+                                <p class="text-on-surface-variant font-medium">
+                                    The model identifies <strong>textures and patterns</strong> from training data rather than conceptual definitions.
+                                    <br><br>
+                                    If a prediction seems incorrect, compare the <strong>High Resolution</strong> vs. <strong>Low Resolution</strong> previews.
+                                    This helps you understand how the model's logic is affected by the pixel-level data it actually "sees."
+                                </p>
+                                <div class="absolute -top-1 right-3 w-2 h-2 rotate-45 bg-surface border-t border-l border-glass-border"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Visual comparision for user -->
+                <div class="flex flex-col items-center mb-16 px-4">
+
+                    <div class="flex flex-col lg:flex-row items-center justify-between w-full max-w-4xl gap-12 lg:gap-16 mx-auto">
+
+                        <!-- Original Image -->
+                        <div class="flex flex-col items-center gap-4 w-full max-w-[320px]">
+                            <div class="relative group w-full aspect-square max-w-[320px] rounded-3xl overflow-hidden border border-white/10 transition-transform duration-500 hover:scale-[1.02] light:border-black/5">
+
+                                <img id="orgImagePreview"
+                                     src=""
+                                     class="w-full h-full object-cover">
+
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+                            </div>
+
+                            <div class="text-center">
+                                <p id="orgResText"
+                                   class="text-[11px] font-bold uppercase tracking-[0.3em] text-on-surface-variant opacity-50 mb-1">
+                                   High Resolution
+                                </p>
+                                <h5 class="text-sm font-semibold">What you see</h5>
+                            </div>
+                        </div>
+
+                        <!-- Processing Arrow -->
+                        <div class="flex flex-col items-center justify-center gap-4 py-4 lg:py-0">
+                            <div class="divider-line top h-12 lg:h-16"></div>
+                            <div class="flex flex-col items-center text-primary">
+
+                                <span class="material-symbols-outlined text-3xl font-light rotate-90 lg:rotate-0 text-primary">
+                                    east
+                                </span>
+                                <span class="text-[9px] font-black uppercase tracking-[0.4em] mt-3 whitespace-nowrap opacity-70">
+                                    Processing
+                                </span>
+                            </div>
+
+                            <div class="divider-line bottom h-12 lg:h-16"></div>
+
+                            <span class="text-[10px] font-black uppercase tracking-[0.4em] mt-3 whitespace-nowrap opacity-70">VS</span>
+                        </div>
+
+                        <!-- Downscaled image -->
+                        <div class="flex flex-col items-center gap-4 w-full max-w-[320px] flex-1">
+
+                            <div class="relative group w-full aspect-square max-w-[320px] rounded-3xl overflow-hidden ring-1 ring-primary/40 shadow-[0_0_40px_rgba(136,217,130,0.15)] bg-black transition-transform duration-500 hover:scale-[1.02]">
+
+                                <img id="PrepImagePreview"
+                                     src=""
+                                     class="w-full h-full"
+                                     style="image-rendering: pixelated;">
+
+                                <div class="absolute inset-0 ring-inset ring-1 ring-white/5"></div>
+                            </div>
+                            <div class="text-center">
+
+                                <p class="text-[11px] font-bold uppercase tracking-[0.3em] text-primary/60 mb-1">Low Resolution (64x64)</p>
+                                <h5 class="text-sm font-semibold">What the model sees</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-6 mb-10">
+                    <div class="flex items-center gap-4">
+                        <div id="predEmoji"
+                             class="w-16 h-16 rounded-2xl bg-secondary-container/40 flex items-center justify-center text-3xl backdrop-blur-md border border-white/10">
+                            🌲
+                        </div>
+
+                        <div>
+                            <h4 class="text-sm font-bold text-on-surface-variant">
+                                Predicted Class
+                            </h4>
+                            <p id="predClass" class="text-2xl font-extrabold text-on-surface">
+                                Forest
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-end">
+                            <span class="text-sm font-bold text-primary"> <span id="confPerc">87</span>% Confidence</span>
+                        </div>
+
+                        <div class="h-2 w-full bg-white/5 rounded-full overflow-hidden">
+                            <div id="confBar"
+                                 style="width: 0%"
+                                 class="h-full rounded-full transition-all duration-1000 ease-in-out"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top 3 classes -->
+                <div class="space-y-6 border-t border-white/10 pt-8">
+                    <p class="text-[10px] font-bold text-outline-variant uppercase tracking-[0.3em] mb-6">
+                        Probability Map
+                    </p>
+
+                    <div class="space-y-3">
+
+                        <div id="firstRow" class="p-3 rounded-xl transition-all duration-300">
+
+                            <div class="flex justify-between items-end px-1">
+
+                                <span class="text-xs font-bold text-on-surface flex items-center gap-2">
+                                    <span class="opacity-80">1.</span> <span id="firstPred" class="opacity-80">Forest</span>
+                                </span>
+
+                                <span id="firstPredConf"
+                                    class="text-xs font-bold text-primary">
+                                    87
+                                </span>
+                            </div>
+
+                            <div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                                <div id="firstconfBar"
+                                    style="width: 0%"
+                                    class="h-full rounded-full transition-all duration-1000 ease-in-out"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+
+                        <div id="secondRow" class="p-3 rounded-xl transition-all duration-300">
+
+                            <div class="flex justify-between items-end px-1">
+
+                                <span class="text-xs font-bold text-on-surface flex items-center gap-2">
+                                    <span class="opacity-50">2.</span> <span id="secondPred" class="opacity-50">Urban</span>
+                                </span>
+
+                                <span id="secondPredConf"
+                                    class="text-xs font-bold text-primary">
+                                    8
+                                </span>
+                            </div>
+
+                            <div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                                <div id="secondconfBar"
+                                    style="width: 0%"
+                                    class="h-full rounded-full transition-all duration-1000 ease-in-out"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                   <div class="space-y-3">
+
+                        <div id="thirdRow" class="p-3 rounded-xl transition-all duration-300">
+
+                            <div class="flex justify-between items-end px-1">
+
+                                <span class="text-xs font-bold text-on-surface flex items-center gap-2">
+                                    <span class="opacity-30">3.</span> <span id="thirdPred" class="opacity-30">AnnualCrop</span>
+                                </span>
+
+                                <span id="thirdPredConf"
+                                    class="text-xs font-bold text-primary">
+                                    5
+                                </span>
+                            </div>
+
+                            <div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                                <div id="thirdconfBar"
+                                    style="width: 0%"
+                                    class="h-full rounded-full transition-all duration-1000 ease-in-out"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Guidelines -->
+            <section class="mt-20 mb-12">
+                <div class="flex items-center gap-3 mb-8">
+                    <span class="material-symbols-outlined text-primary text-3xl">
+                        lightbulb
+                    </span>
+                    <h2 class="text-3xl font-black tracking-tight font-serif italic text-on-surface">
+                        Guidelines
+                    </h2>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="glass-panel p-8 rounded-3xl space-y-6">
+                        <h3 class="text-sm font-bold uppercase tracking-widest text-primary">
+                            For Best Results
+                        </h3>
+                        <ul class="space-y4">
+                            <li class="flex items-start gap-3">
+                                <span class="material-symbols-outlined text-primary-fixed-dim mt-0.5">
+                                    straighten
+                                </span>
+                                <p class="text-sm text-on-surface-variant leading-relaxed">
+                                    Aim for a resolution of <span class="text-on-surface font-bold">10m/px</span>. This ensures each pixel represents a 10m² area, matching our training baseline.
+                                </p>
+                            </li>
+                            <br>
+                            <li class="flex items-start gap-3">
+                                <span class="material-symbols-outlined text-primary-fixed-dim mt-0.5">
+                                    zoom_in
+                                </span>
+                                <p class="text-sm text-on-surface-variant leading-relaxed">
+                                    Avoid extreme "zoomed out" views. Try the <span class="text-on-surface font-bold">Test</span> sample below to see how resolution affects classificaion logic.
+                                </p>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="glass-panel p-8 rounded-3xl space-y-6">
+                        <h3 class="text-sm font-bold uppercase tracking-widest text-secondary">
+                            Where to find images?
+                        </h3>
+                        <div class="grid grid-cols-1 gap-4 text-sm text-on-surface-variant">
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-[10px] font-bold uppercase">Google Earth</span>
+                                <span class="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-[10px] font-bold uppercase">Sentinel-2 Hub</span>
+                                <span class="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-[10px] font-bold uppercase">EuroSAT Dataset</span>
+                                <span class="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-[10px] font-bold uppercase">...</span>
+                            </div>
+                            <p class="leading-relaxed">
+                                Capture screenshots from Google Earth or Google Maps Satellite view or explore platforms like <span class="text-secondary font-bold">Sentinel Hub</span> for Sentinel-2 data.
+                            </p>
+                            <p class="italic text-[11px] opacity-60">
+                                Pro Tip: Upload a completely random image and watch the model be <span class="text-on-surface font-bold">confidently wrong</span>! 😂
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sample Images Section -->
+            <section class="mt-12">
+                <div class="flex flex-col md:flex-row items-center md:items-end justify-between gap-4 mb-8 text-center md:text-left">
+                    <div class="space-y-1">
+                        <h2 class="text-lg font-bold flex items-center gap-2">
+                            Try a Sample
+                        </h2>
+                        <p class="text-sm text-on-surface-variant font-medium opacity-70">
+                            No image? Analyze one of our pre-set terrestrial segments.
+                        </p>
+                    </div>
+
+                    <span class="text-[10px] font-black text-primary uppercase tracking-[0.3em] bg-primary/10 px-3 py-1 rounded-full md:bg-transaprent md:px-0">
+                        Select to Analyze
+                    </span>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-5">
+
+                    <div class="group cursor-pointer sample-card">
+
+                        <div class="relative aspect-square rounded-xl overflow-hidden mb-2 shadow-sm ring-1 ring-white/10">
+
+                            <img alt="high resolution aerial top-down image of a dense coniferous forest"
+                                 class="sample-img w-full h-full rounded-2xl object-cover group-hover:scale-110 transition-transform duration-500"
+                                 src="{{ url_for('static', filename='sample_images/AnnualCrop.jpg') }}" />
+
+                            <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
+                            <span class="absolute top-3 left-3 w-8 h-8 flex items-center justify-center bg-black/20 backdrop-blur-md rounded-full text-base border border-white/10 shadow-lg z-20 transition-transform text-xl">🌾</span>
+                        </div>
+
+                        <p class="text-center text-xs font-bold text-on-surface-variant">Annual Crop</p>
+                    </div>
+
+                    <div class="group cursor-pointer sample-card">
+
+                        <div class="relative aspect-square rounded-xl overflow-hidden mb-2 shadow-sm ring-1 ring-white/10">
+
+                            <img alt="satellite view of a winding blue river"
+                                 class="sample-img w-full h-full rounded-2xl object-cover group-hover:scale-110 transition-transform duration-500"
+                                 src="{{ url_for('static', filename='sample_images/Forest.jpg') }}"/>
+
+                            <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
+                            <span class="absolute top-3 left-3 w-8 h-8 flex items-center justify-center bg-black/20 backdrop-blur-md rounded-full text-base border border-white/10 shadow-lg z-20 transition-transform text-xl">🌲</span>
+                        </div>
+
+                        <p class="text-center text-xs font-bold text-on-surface-variant">Forest</p>
+                    </div>
+
+                    <div class="group cursor-pointer sample-card">
+
+                        <div class="relative aspect-square rounded-xl overflow-hidden mb-2 shadow-sm ring-1 ring-white/10">
+
+                            <img alt="orthophoto of an urban city grid"
+                                 class="sample-img w-full h-full rounded-2xl object-cover group-hover:scale-110 transition-transform duration-500"
+                                 src="{{ url_for('static', filename='sample_images/HerbaceousVegetation.jpg') }}" />
+
+                            <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
+                            <span class="absolute top-3 left-3 w-8 h-8 flex items-center justify-center bg-black/20 backdrop-blur-md rounded-full text-base border border-white/10 shadow-lg z-20 transition-transform text-xl">🌿</span>
+                        </div>
+
+                        <p class="text-center text-xs font-bold text-on-surface-variant">Herbaceous Vegetation</p>
+                    </div>
+
+                    <div class="group cursor-pointer sample-card">
+
+                        <div class="relative aspect-square rounded-xl overflow-hidden mb-2 shadow-sm ring-1 ring-white/10">
+
+                            <img alt="satellite imagery of a circular irrigation fields"
+                                 class="sample-img w-full h-full rounded-2xl object-cover group-hover:scale-110 transition-transform duration-500"
+                                 src="{{ url_for('static', filename='sample_images/Highway.jpg') }}"/>
+
+                            <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
+                            <span class="absolute top-3 left-3 w-8 h-8 flex items-center justify-center bg-black/20 backdrop-blur-md rounded-full text-base border border-white/10 shadow-lg z-20 transition-transform text-xl">🛣️</span>
+                        </div>
+
+                        <p class="text-center text-xs font-bold text-on-surface-variant">Highway</p>
+                    </div>
+
+                    <div class="group cursor-pointer sample-card">
+
+                        <div class="relative aspect-square rounded-xl overflow-hidden mb-2 shadow-sm ring-1 ring-white/10">
+
+                            <img alt="satellite imagery of a circular irrigation fields"
+                                 class="sample-img w-full h-full rounded-2xl object-cover group-hover:scale-110 transition-transform duration-500"
+                                 src="{{ url_for('static', filename='sample_images/Industrial.jpg') }}"/>
+
+                            <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
+                            <span class="absolute top-3 left-3 w-8 h-8 flex items-center justify-center bg-black/20 backdrop-blur-md rounded-full text-base border border-white/10 shadow-lg z-20 transition-transform text-xl">🏭</span>
+                        </div>
+
+                        <p class="text-center text-xs font-bold text-on-surface-variant">Industrial</p>
+                    </div>
+
+                    <div class="group cursor-pointer sample-card">
+
+                        <div class="relative aspect-square rounded-xl overflow-hidden mb-2 shadow-sm ring-1 ring-white/10">
+
+                            <img alt="satellite imagery of a circular irrigation fields"
+                                 class="sample-img w-full h-full rounded-2xl object-cover group-hover:scale-110 transition-transform duration-500"
+                                 src="{{ url_for('static', filename='sample_images/Pasture.jpg') }}"/>
+
+                            <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
+                            <span class="absolute top-3 left-3 w-8 h-8 flex items-center justify-center bg-black/20 backdrop-blur-md rounded-full text-base border border-white/10 shadow-lg z-20 transition-transform text-xl">🍀</span>
+                        </div>
+
+                        <p class="text-center text-xs font-bold text-on-surface-variant">Pasture</p>
+                    </div>
+
+                    <div class="group cursor-pointer sample-card">
+
+                        <div class="relative aspect-square rounded-xl overflow-hidden mb-2 shadow-sm ring-1 ring-white/10">
+
+                            <img alt="satellite imagery of a circular irrigation fields"
+                                 class="sample-img w-full h-full rounded-2xl object-cover group-hover:scale-110 transition-transform duration-500"
+                                 src="{{ url_for('static', filename='sample_images/PermanentCrop.jpg') }}"/>
+
+                            <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
+                            <span class="absolute top-3 left-3 w-8 h-8 flex items-center justify-center bg-black/20 backdrop-blur-md rounded-full text-base border border-white/10 shadow-lg z-20 transition-transform text-xl">🌳</span>
+                        </div>
+
+                        <p class="text-center text-xs font-bold text-on-surface-variant">Permanent Crop</p>
+                    </div>
+
+                    <div class="group cursor-pointer sample-card">
+
+                        <div class="relative aspect-square rounded-xl overflow-hidden mb-2 shadow-sm ring-1 ring-white/10">
+
+                            <img alt="satellite imagery of a circular irrigation fields"
+                                 class="sample-img w-full h-full rounded-2xl object-cover group-hover:scale-110 transition-transform duration-500"
+                                 src="{{ url_for('static', filename='sample_images/Residential.jpg') }}"/>
+
+                            <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
+                            <span class="absolute top-3 left-3 w-8 h-8 flex items-center justify-center bg-black/20 backdrop-blur-md rounded-full text-base border border-white/10 shadow-lg z-20 transition-transform text-xl">🏘️</span>
+                        </div>
+
+                        <p class="text-center text-xs font-bold text-on-surface-variant">Residential</p>
+                    </div>
+
+                    <div class="group cursor-pointer sample-card">
+
+                        <div class="relative aspect-square rounded-xl overflow-hidden mb-2 shadow-sm ring-1 ring-white/10">
+
+                            <img alt="satellite imagery of a circular irrigation fields"
+                                 class="sample-img w-full h-full rounded-2xl object-cover group-hover:scale-110 transition-transform duration-500"
+                                 src="{{ url_for('static', filename='sample_images/River.jpg') }}"/>
+
+                            <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
+                            <span class="absolute top-3 left-3 w-8 h-8 flex items-center justify-center bg-black/20 backdrop-blur-md rounded-full text-base border border-white/10 shadow-lg z-20 transition-transform text-xl">🌊</span>
+                        </div>
+
+                        <p class="text-center text-xs font-bold text-on-surface-variant">River</p>
+                    </div>
+
+                    <div class="group cursor-pointer sample-card">
+
+                        <div class="relative aspect-square rounded-xl overflow-hidden mb-2 shadow-sm ring-1 ring-white/10">
+
+                            <img alt="satellite imagery of a circular irrigation fields"
+                                 class="sample-img w-full h-full rounded-2xl object-cover group-hover:scale-110 transition-transform duration-500"
+                                 src="{{ url_for('static', filename='sample_images/SeaLake.jpg') }}"/>
+
+                            <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
+                            <span class="absolute top-3 left-3 w-8 h-8 flex items-center justify-center bg-black/20 backdrop-blur-md rounded-full text-base border border-white/10 shadow-lg z-20 transition-transform text-xl">🚢</span>
+                        </div>
+
+                        <p class="text-center text-xs font-bold text-on-surface-variant">Sea Lake</p>
+                    </div>
+
+                    <div class="group cursor-pointer sample-card">
+
+                        <div class="relative aspect-square rounded-xl overflow-hidden mb-2 shadow-sm ring-1 ring-white/10">
+
+                            <img alt="high resolution aerial top-down image of a dense coniferous forest"
+                                 class="sample-img w-full h-full rounded-2xl object-cover group-hover:scale-110 transition-transform duration-500"
+                                 src="{{ url_for('static', filename='sample_images/test.png') }}" />
+
+                            <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
+                            <span class="absolute top-3 left-3 w-8 h-8 flex items-center justify-center bg-black/20 backdrop-blur-md rounded-full text-base border border-white/10 shadow-lg z-20 transition-transform text-xl">🛰️</span>
+                        </div>
+
+                        <p class="text-center text-xs font-bold text-on-surface-variant">Suprise</p>
+                    </div>
+                </div>
+            </section>
+
+            <p class="text-center text-[15px] text-outline px-8 mt-8 leading-relaxed">
+                Classifications are provided using a custom Convolutional Neural Network (CNN) trained on the
+                EuroSAT dataset
+            </p>
+        </main>
+
+        <footer class="w-full border-t border-glass-border bg-surface/80 backdrop-blur-xl py-12 mt-auto z-10">
+            <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-10">
+
+                <div class="space-y-4">
+                    <div class="flex items-center gap-1">
+                        <h1 class="text-cl font-black tracking-tighter text-on-surface">
+                            <span class="text-primary">S.</span>
+                            <span class="font-serif italic text-primary-fixed-dim px-0.5">I</span>
+                            <span class="text-primary">. L. C.</span>
+                        </h1>
+                    </div>
+
+                    <div class="text-xs md:text-sm text-on-surface-variant font-medium loading-relaxed">
+                        <p>
+                            © <span id="year"></span> S. I. L. C. | Designed & Developed by <cpan class="text-on-surface font-bold">Aaryan Gotad</cpan>
+                        </p>
+                        <p class="flex items-center gap-1 mt-1">
+                            Engineered with <span class="heart text-error">❤️</span> at <span class="text-on-surface font-bold">IIT Guwahati</span>
+                        </p>
+                        <p class="text-[10px] opacity-60 mt-2 italic uppercase tracking-widest">
+                            Satellite Image Land Classification
+                        </p>
+                    </div>
+                </div>
+
+                <div class"flex flex-wrap gap-x-8 gap-y-4">
+                    <a href="REPO_URL"
+                       target="_blank"
+                       class="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant hover:text-primary transition-all group">
+
+                        <span class="material-symbols-outlined text-lg group-hover:rotate-12 transotopm-transform">
+                            code
+                        </span>
+                        Source Code
+                    </a>
+
+                    <a href="LINKEDIN_URL"
+                       target="_blank"
+                       class="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant hover:text-primary transition-all group">
+
+                        <span class="material-symbols-outlined text-lg group-hover:rotate-12 transotopm-transform">
+                            person_add
+                        </span>
+                        Connect
+                    </a>
+
+                    <a href="https://www.kaggle.com/datasets/apollo2506/eurosat-dataset"
+                       target="_blank"
+                       class="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant hover:text-primary transition-all group">
+
+                        <span class="material-symbols-outlined text-lg group-hover:rotate-12 transotopm-transform">
+                            database
+                        </span>
+                        Dataset
+                    </a>
+                </div>
+            </div>
+        </footer>
+
+        <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    </body>
+</html>
