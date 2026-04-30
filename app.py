@@ -1,22 +1,30 @@
 import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
-os.environ['OMP_NUM_THREADS'] = '1'
-os.environ['TF_NUM_INTRAOP_THREADS'] = '1'
-os.environ['TF_NUM_INTEROP_THREADS'] = '1'
-
-from helper import preprocess, get_top_k_predictions
-
-from flask import Flask, redirect, render_template, request, jsonify
-from flask_session import Session
-
+import numpy as np
 import tensorflow as tf
+import keras
+from flask import Flask, render_template, request, session, jsonify
+from flask_session import Session
+from PIL import Image
+from keras.layers import Dense
 from tensorflow.keras.models import load_model
 
+# 1. Safety Patch for Keras 3 'quantization_config' error
+original_dense_init = Dense.__init__
+def patched_dense_init(self, *args, **kwargs):
+    kwargs.pop("quantization_config", None)
+    return original_dense_init(self, *args, **kwargs)
+Dense.__init__ = patched_dense_init
+
+# 2. Import your local helper functions
+from helper import preprocess, get_top_k_predictions
+
+# 3. Initialize Flask
 app = Flask(__name__)
 
-# Configure session to use filesystem (instead of signed cookies)
+# 4. Hugging Face Writable Session Config
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "Filesystem"
+app.config["SESSION_FILE_DIR"] = "/tmp/flask_session" 
 Session(app)
 
 @app.after_request
