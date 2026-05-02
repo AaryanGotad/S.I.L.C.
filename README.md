@@ -239,7 +239,35 @@ Similar confusion occurs between **Forest**, **HerbaceousVegetation**, **Pasture
 ```
 User Image → Flask Backend → Preprocessing → Model Inference → Top-K Predictions → UI Display
 ```
+```mermaid
+graph TD
+    subgraph Client_Side [Client - Browser]
+        A[User Upload / Sample]
+        I[Interactive Dashboard - JS/Tailwind]
+    end
 
+    subgraph Docker_Runtime [Docker Environment - HF Spaces]
+        B[Flask Router - /predict]
+        
+        subgraph AI_Pipeline [Inference Pipeline]
+            C[PIL/NumPy Preprocessing - 64x64]
+            D[EfficientNetB0 Engine]
+            E[Softmax Probability Map]
+        end
+        
+        F{Confidence Threshold Check}
+    end
+
+    A --> B
+    B --> C
+    C --> D
+    D --> E
+    E --> F
+    F -->|Pass| G[JSON: Top-3 Labels]
+    F -->|Fail| H[JSON: OOD Error]
+    G --> I
+    H --> I
+```
 ### 🔄 Preprocessing Pipeline
 
 1. Resize to 64×64 with aspect ratio preserved (bilinear interpolation)
@@ -325,6 +353,56 @@ print(response.json())
 - **Low input resolution (64×64):** Fine-grained details are unavoidably lost during preprocessing. The "surprise" sample image in the demo illustrates how severely this can affect predictions.
 - **Texture-based classification:** The model learns visual patterns, not semantic meaning, which is the root cause of the River ↔ Highway confusion.
 - **Fixed class set:** The model can only classify images into one of the 10 EuroSAT classes. Out-of-distribution images (e.g. snow, desert, urban sprawl) may produce unreliable predictions.
+
+---
+
+## 🌍 Out-of-Domain (OOD) Data
+
+As mentioned above, this model is fine-tuned on the EuroSAT dataset, which consists of 64×64 satellite images captured by the Sentinel-2 satellite.
+
+Suppose you upload a top-down image that is clearly one of the 10 supported classes, say, a *forest*:
+
+<img src="static/docImages/forest.png" style="margin-left: 15%; width: 50%;">
+
+...but the model confidently predicts a completely different class, like *Residential*:
+
+<img src="static/docImages/forest_results.png" style="margin-left: 15%; width: 50%;">
+
+This might make you think the model is broken or poorly trained. It isn't.
+
+Neural networks are notorious for being confidently wrong when given inputs they have never encountered during training. You may have seen a version of this with LLMs ChatGPT, Gemini, or Claude sometimes state something obviously incorrect with complete conviction. That phenomenon is called hallucination. What happens here is similar in nature, just at a much smaller scale.
+
+The root cause is the output layer: it uses a softmax activation.
+
+<img src="static/docImages/softmax.png" style="margin-left: 15%; width: 50%;">
+
+Softmax forces all output probabilities to sum to exactly 1 (100%), which means the model must commit to one of the 10 classes, it has no way to say "I don't know." Whatever input you give it, it will always produce a confident-looking answer.
+
+This becomes especially visible with high-resolution images. Take a city grid photo:
+
+<img src="static/docImages/city_grid.png" style="margin-left: 15%; width: 50%;">
+
+Since the model expects 64×64 inputs, any image must be downscaled to that resolution before inference. Downscaling inevitably destroys fine detail, there's no way around it.
+
+<img src="static/docImages/city_grid_comparison.png" style="margin-left: 15%; width: 50%;">
+
+After downscaling, the texture and pattern of this city grid ends up looking remarkably similar to Annual Crop imagery. So the model classifies it as AnnualCrop, confidently.
+
+<img src="static/docImages/city_grid_results.png" style="margin-left: 15%; width: 50%;">
+
+### **Possible mitigations**
+
+* Train at a higher input resolution - e.g. 128×128 instead of 64×64. I attempted 224×224 but ran into VRAM limitations on free compute, so I stayed with the native EuroSAT resolution to keep things manageable.
+
+* Train on a more diverse dataset - adding non-EuroSAT imagery would help the model learn what "out-of-domain" looks like.
+
+* Patch-based classification - divide the image into fixed-size patches, classify each independently, and average the results.
+
+I decided not to pursue any of these for this version, and I think that was the right call. This is my first ML project, and I'd rather do one thing well than chase every improvement until the project collapses under its own scope. In software development and ML, there's a name for that trap: **feature creep**, the tendency for a project to grow indefinitely until it becomes a burden rather than a useful thing.
+
+What I did add, based on some feedback, is a confidence threshold (currently set to 85%). If the model's top prediction falls below this threshold, the UI skips the class label entirely and instead displays a message indicating that the image does not appear to be a satellite image. It's not a complete solution, but it prevents the most obviously wrong predictions from being shown as if they were reliable.
+
+<img src="static/docImages/threshold.png" style="margin-left: 15%; width: 50%;">
 
 ---
 
