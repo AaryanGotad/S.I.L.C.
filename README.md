@@ -57,7 +57,7 @@ The UI is fully responsive and works equally well on mobile screens.
 
 ## 🧠 Model Details
 
-All models were built with TensorFlow/Keras. <img src="static/docImages/Tensorflow_logo.svg.png" alt="TensorFlow logo" style="height: 15%; width: 50%;">
+All models were built with TensorFlow/Keras. <img src="static/docImages/Tensorflow_logo.svg.png" alt="TensorFlow logo" style="width: 2%;">
 
 ### Dataset
 
