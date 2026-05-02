@@ -255,7 +255,7 @@ graph TD
             E[Softmax Probability Map]
         end
         
-        F{Confidence Threshold Check}
+        F{"Confidence Threshold (85%) Check"}
     end
 
     A --> B
