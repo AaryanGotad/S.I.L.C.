@@ -9,46 +9,11 @@ app_port: 7860
 
 ![SILC_COVER_IMAGE](static/docImages/silc_cover.png)
 
-# 🛰️ S.I.L.C. - Satellite Image Land Classification
+# 🛰️ S.I.L.C. — Satellite Image Land Classification
 
 S.I.L.C. is a full-stack machine learning system that classifies land types from satellite imagery using a fine-tuned EfficientNet-B0 model trained on the EuroSAT RGB dataset.
 
 Users can upload real-world satellite images and receive top-3 predictions with confidence scores, alongside a visual comparison showing how the model preprocesses the image through its 64×64 pipeline.
-
----
-
-## 📂 File Structure
-
-```
-S.I.L.C.  ← top-level folder
-├── model/
-│   └── effnet_model.keras       ← Trained model
-├── static/
-│   ├── css/
-│   │   └── style.css            ← Stylesheet
-│   └── js/
-│       └── script.js            ← Frontend logic
-├── sample_images/               ← One sample per class (+ surprise image)
-│   ├── AnnualCrop.jpg
-│   ├── Forest.jpg
-│   ├── HerbaceousVegetation.jpg
-│   ├── Highway.jpg
-│   ├── Industrial.jpg
-│   ├── Pasture.jpg
-│   ├── PermanentCrop.jpg
-│   ├── Residential.jpg
-│   ├── River.jpg
-│   ├── SeaLake.jpg
-│   └── test.png                 ← Surprise class image
-├── templates/
-│   └── index.html               ← Frontend
-├── app.py                       ← Main Flask application
-├── helper.py                    ← Preprocessing and top-k prediction helpers
-├── requirements.txt             ← Python dependencies
-├── Dockerfile                   ← Docker configuration
-├── Procfile                     ← Configuration for hosting services (e.g. Render)
-└── README.md                    ← This file
-```
 
 ---
 
@@ -64,16 +29,16 @@ Upload a satellite image or try one of the provided sample images.
 
 - 🧠 **EfficientNet-B0** image classifier — 10 land-use classes
 - 📊 **Top-3 predictions** with confidence scores
-- 🖼️ **Visual comparison** original image alongside the model's 64×64 preprocessed input
+- 🖼️ **Visual comparison** — original image alongside the model's 64×64 preprocessed input
 
 <img src="static/docImages/visual_comparison.png" alt="Visual comparison" width="50%">
 
 - ⚡ **Real-time inference** via Flask API
-- 🎨 **Clean, responsive UI** built with Tailwind CSS, supports dark/light mode
+- 🎨 **Clean, responsive UI** built with Tailwind CSS — supports dark/light mode
 
 <img src="static/docImages/stitch_logo.png" alt="Google Stitch logo" height="60">
 
-The UI was designed from scratch in HTML, CSS, and vanilla JavaScript (no frameworks). I used [Google Stitch](https://stitch.withgoogle.com/) to sketch the initial layout and structure.
+The UI was built from scratch in HTML, CSS, and vanilla JavaScript — no frameworks. I used [Google Stitch](https://stitch.withgoogle.com/) to sketch the initial layout and structure.
 
 <img src="static/docImages/homepage.png" alt="Homepage" width="50%">
 <img src="static/docImages/preview_window.png" alt="Preview window on image selection" width="50%">
@@ -98,7 +63,7 @@ All models were built with TensorFlow/Keras. <img src="static/docImages/Tensorfl
 
 ![EuroSAT dataset cover](static/docImages/eurosat_cover.png)
 
-All models were trained on the [EuroSAT](https://www.kaggle.com/datasets/apollo2506/eurosat-dataset) RGB dataset, **27,000 satellite images** across **10 land-use classes**:
+All models were trained on the [EuroSAT](https://www.kaggle.com/datasets/apollo2506/eurosat-dataset) RGB dataset — **27,000 satellite images** across **10 land-use classes**:
 
 | Split | Images |
 |-------|--------|
@@ -108,7 +73,7 @@ All models were trained on the [EuroSAT](https://www.kaggle.com/datasets/apollo2
 
 #### Why 64×64?
 
-All EuroSAT images are natively **64×64 pixels**, captured at a ground sampling distance of **10 metres per pixel** (meaning each pixel represents a 10m × 10m patch of land). This is a relatively low resolution, which is part of what makes the classification task challenging, and also why fine-grained details can sometimes be lost. The "surprise" sample image in the demo is a good illustration of this limitation.
+All EuroSAT images are natively **64×64 pixels**, captured at a ground sampling distance of **10 metres per pixel** — meaning each pixel represents a 10m × 10m patch of land. This is a relatively low resolution, which is part of what makes the task challenging, and also a core reason why fine-grained details can be lost during inference. The OOD section below goes into this in detail.
 
 ---
 
@@ -137,15 +102,15 @@ As expected, the model began overfitting from the second epoch:
 | Accuracy | 91.11% | 75.33% |
 | Loss | 25.56% | 77.00% |
 
-A ~16% accuracy gap between training and validation made it clear a stronger architecture was needed, which led me to transfer learning.
+A ~16% accuracy gap between training and validation made it clear a stronger architecture was needed — which led me to transfer learning.
 
 ---
 
-### Transfer Learning - Feature Extraction
+### Transfer Learning — Feature Extraction
 
 I chose **EfficientNet-B0** as the base model. The reasoning was practical: it is compact enough to train and fine-tune on free cloud compute, and deployable without heavy quantization.
 
-The base model weights were frozen, and a custom classification head was added on top (Functional API).
+The base model weights were frozen, and a custom classification head was added on top using the Functional API.
 
 **Architecture:**
 - Input (64×64)
@@ -158,7 +123,7 @@ The base model weights were frozen, and a custom classification head was added o
 
 ![Transfer learning architecture](static/docImages/transfer_arch.png)
 
-Trained for 5 epochs with a checkpoint callback (used in fine-tuning).
+Trained for 5 epochs with a checkpoint callback (weights saved for the fine-tuning phase).
 
 | Metric | Training | Validation |
 |--------|----------|------------|
@@ -167,7 +132,7 @@ Trained for 5 epochs with a checkpoint callback (used in fine-tuning).
 
 <img src="static/docImages/transfer_training_metrics.png" alt="Feature extraction training metrics" width="50%">
 
-The training and validation metrics stayed closely aligned, a strong sign of good generalization. Notably, data augmentation was tested here but actually hurt performance, so it was removed.
+Training and validation metrics stayed closely aligned — a strong sign of good generalization. Data augmentation was tested here but actually hurt performance, so it was removed.
 
 ---
 
@@ -178,7 +143,7 @@ After loading the best checkpoint weights from the feature extraction phase, I u
 ![Fine-tuning architecture (part 1)](static/docImages/transfer_training_fine_1.png)
 ![Fine-tuning architecture (part 2)](static/docImages/transfer_training_fine_2.png)
 
-The model dipped in the first epoch after unfreezing (expected), but recovered quickly.
+The model dipped in the first epoch after unfreezing — expected behaviour — but recovered quickly.
 
 | Metric | Training | Validation |
 |--------|----------|------------|
@@ -207,38 +172,93 @@ I also experimented with unfreezing 10 additional layers, but performance droppe
 | Training | 97.85% |
 | Test | 95.11% |
 
-These metrics were measured on the **held-out test set (2,700 images)**, data the model had never seen during training or validation.
+These metrics were measured on the **held-out test set (2,700 images)** — data the model had never seen during training or validation.
 
 ---
 
 ### 🔍 Confusion Insights
 
-The model performs strongly across all 10 classes, with **Residential** achieving the highest accuracy at **98.7%**.
+The model performs strongly across all 10 classes, with **Residential** achieving the highest per-class accuracy at **98.7%**.
 
-The main source of confusion is between **River** and **Highway**. Both classes share a similar visual pattern, a long, narrow strip running through the image, differing mainly in color (blue-green for rivers, grey for highways). Out of 250 River test images, the model correctly classified 225 but misclassified 13 as Highway.
+The main source of confusion is between **River** and **Highway**. Both share a similar visual structure — a long, narrow strip running through the image — differing mainly in colour (blue-green for rivers, grey for highways). Out of 250 River test images, 225 were classified correctly, but 13 were misclassified as Highway.
 
-Similar confusion occurs between **Forest**, **HerbaceousVegetation**, **Pasture**, and occasionally **SeaLake**, where texture patterns overlap significantly. This is a fundamental limitation of texture-based models: the model learns visual patterns, not semantic concepts. It sees "long strip → possibly highway" rather than understanding what a river or a highway actually is.
+Similar confusion occurs between **Forest**, **HerbaceousVegetation**, **Pasture**, and occasionally **SeaLake**, where texture patterns overlap significantly. This points to a fundamental characteristic of how these models work: they learn visual patterns, not semantic meaning. The model sees "long strip → possibly highway," rather than understanding what a river or a highway actually *is*. The OOD section below explores why this matters beyond just the confusion matrix.
 
 **Strong performance on:**
-- Residential - 98.7%
-- Sea/Lake - 98.0%
+- Residential — 98.7%
+- Sea/Lake — 98.0%
 
 **Primary confusion:**
 - River ↔ Highway (linear pattern similarity)
-
----
-
-## 📊 Confusion Matrix
 
 ![Confusion Matrix](static/docImages/confusion_matrix.png)
 
 ---
 
+## 🌍 Out-of-Domain (OOD) Data
+
+This section explains one of the most common points of confusion when using S.I.L.C. — and arguably the most important thing to understand about how this model (and most classifiers like it) actually behaves.
+
+---
+
+Suppose you upload a top-down image that is clearly one of the 10 supported classes — say, a *forest*:
+
+<img src="static/docImages/forest.png" style="margin-left: 15%; width: 50%;">
+
+...but the model confidently predicts a completely different class, like *Residential*:
+
+<img src="static/docImages/forest_results.png" style="margin-left: 15%; width: 50%;">
+
+This might make you think the model is broken or poorly trained. It isn't.
+
+Neural networks are notorious for being ***confidently wrong*** when given inputs they haven't encountered during training. You may have seen a version of this with LLMs — ChatGPT, Gemini, or Claude sometimes state something obviously incorrect with complete conviction. That phenomenon is called **hallucination**. What happens here is the same idea, just at a much smaller scale.
+
+The root cause is the output layer: it uses **softmax activation**.
+
+<img src="static/docImages/softmax.png" style="margin-left: 15%; width: 50%;">
+
+Softmax forces all output probabilities to sum to exactly 1 (100%). This means the model *must always* commit to one of the 10 classes — it has no mechanism to say "I don't know." Whatever input you give it, it will always return a confident-looking answer.
+
+---
+
+This becomes especially visible with high-resolution, real-world images. Take a city grid photo:
+
+<img src="static/docImages/city_grid.png" style="margin-left: 15%; width: 50%;">
+
+Since the model expects 64×64 inputs, any image must be downscaled before inference. Downscaling inevitably destroys fine detail — there's no way around it.
+
+<img src="static/docImages/city_grid_comparison.png" style="margin-left: 15%; width: 50%;">
+
+After downscaling, the texture and pattern of this city grid ends up looking remarkably similar to Annual Crop imagery. So the model classifies it as *AnnualCrop* — confidently.
+
+<img src="static/docImages/city_grid_results.png" style="margin-left: 15%; width: 50%;">
+
+---
+
+### Possible Mitigations
+
+- **Train at a higher input resolution** — e.g. 128×128 instead of 64×64. I attempted 224×224 but ran into VRAM limitations on free compute, so I stayed with the native EuroSAT resolution to keep things manageable.
+- **Train on a more diverse dataset** — adding non-EuroSAT imagery would help the model learn what "out-of-domain" looks like.
+- **Patch-based classification** — divide the input into fixed-size patches, classify each independently, and average the results.
+
+I decided not to pursue any of these for this version — and I think that was the right call. This is my first ML project, and I'd rather do one thing well than chase every improvement until the project collapses under its own scope. In software development and ML, there's a name for that trap: **feature creep** — the tendency for a project to grow indefinitely until it becomes a burden rather than a useful thing.
+
+What I *did* add, based on some feedback, is a **confidence threshold** (currently set to 85%). If the model's top prediction falls below this threshold, the UI skips the class label entirely and displays a message indicating that the image does not appear to be a satellite image. It isn't a complete solution, but it prevents the most obviously wrong predictions from being presented as if they were reliable.
+
+<img src="static/docImages/threshold.png" style="margin-left: 15%; width: 50%;">
+
+---
+
+## ⚠️ Limitations
+
+- **Low input resolution (64×64):** Fine-grained detail is unavoidably lost during downscaling. The OOD section above walks through exactly why this happens and what it looks like in practice.
+- **Texture-based classification:** The model learns visual patterns, not semantic concepts — the root cause of both the River ↔ Highway confusion and the OOD behaviour described above.
+- **Fixed class set:** The model can only output one of the 10 EuroSAT classes. Images that don't belong to any of them (snow, desert, open ocean, urban sprawl) will still receive a prediction — just not a reliable one.
+
+---
+
 ## ⚙️ System Architecture
 
-```
-User Image → Flask Backend → Preprocessing → Model Inference → Top-K Predictions → UI Display
-```
 ```mermaid
 graph TD
     subgraph Client_Side [Client - Browser]
@@ -273,10 +293,11 @@ graph TD
     D --> E
     E --> F
     F -->|Pass| G[JSON: Top-3 Labels]
-    F -->|Fail| H[JSON: OOD Error]
+    F -->|Fail| H[JSON: OOD Warning]
     G --> I
     H --> I
 ```
+
 ### 🔄 Preprocessing Pipeline
 
 1. Resize to 64×64 with aspect ratio preserved (bilinear interpolation)
@@ -290,6 +311,7 @@ graph TD
 
 - Model inference via TensorFlow/Keras
 - Top-3 predictions extracted using the `get_top_k_predictions` helper
+- Confidence threshold applied before returning results to the UI
 
 ---
 
@@ -311,13 +333,14 @@ Body: image file (JPG, PNG)
 **Response**
 
 ```json
-{
+[
    { "label": "Residential", "confidence": 94 },
    { "label": "Industrial",  "confidence": 4 },
    { "label": "Highway",     "confidence": 1 }
-}
+]
 ```
-> (*Note: Confidence is by default returned in percentage form*)
+
+> *Note: Confidence values are returned as percentages (integer form).*
 
 **Example (Python)**
 
@@ -357,73 +380,15 @@ print(response.json())
 
 ---
 
-## ⚠️ Limitations
-
-- **Low input resolution (64×64):** Fine-grained details are unavoidably lost during preprocessing. The "surprise" sample image in the demo illustrates how severely this can affect predictions.
-- **Texture-based classification:** The model learns visual patterns, not semantic meaning, which is the root cause of the River ↔ Highway confusion.
-- **Fixed class set:** The model can only classify images into one of the 10 EuroSAT classes. Out-of-distribution images (e.g. snow, desert, urban sprawl) may produce unreliable predictions.
-
----
-
-## 🌍 Out-of-Domain (OOD) Data
-
-As mentioned above, this model is fine-tuned on the EuroSAT dataset, which consists of 64×64 satellite images captured by the Sentinel-2 satellite.
-
-Suppose you upload a top-down image that is clearly one of the 10 supported classes, say, a *forest*:
-
-<img src="static/docImages/forest.png" style="margin-left: 15%; width: 50%;">
-
-...but the model confidently predicts a completely different class, like *Residential*:
-
-<img src="static/docImages/forest_results.png" style="margin-left: 15%; width: 50%;">
-
-This might make you think the model is broken or poorly trained. It isn't.
-
-Neural networks are notorious for being confidently wrong when given inputs they have never encountered during training. You may have seen a version of this with LLMs ChatGPT, Gemini, or Claude sometimes state something obviously incorrect with complete conviction. That phenomenon is called hallucination. What happens here is similar in nature, just at a much smaller scale.
-
-The root cause is the output layer: it uses a softmax activation.
-
-<img src="static/docImages/softmax.png" style="margin-left: 15%; width: 50%;">
-
-Softmax forces all output probabilities to sum to exactly 1 (100%), which means the model must commit to one of the 10 classes, it has no way to say "I don't know." Whatever input you give it, it will always produce a confident-looking answer.
-
-This becomes especially visible with high-resolution images. Take a city grid photo:
-
-<img src="static/docImages/city_grid.png" style="margin-left: 15%; width: 50%;">
-
-Since the model expects 64×64 inputs, any image must be downscaled to that resolution before inference. Downscaling inevitably destroys fine detail, there's no way around it.
-
-<img src="static/docImages/city_grid_comparison.png" style="margin-left: 15%; width: 50%;">
-
-After downscaling, the texture and pattern of this city grid ends up looking remarkably similar to Annual Crop imagery. So the model classifies it as AnnualCrop, confidently.
-
-<img src="static/docImages/city_grid_results.png" style="margin-left: 15%; width: 50%;">
-
-### **Possible mitigations**
-
-* Train at a higher input resolution - e.g. 128×128 instead of 64×64. I attempted 224×224 but ran into VRAM limitations on free compute, so I stayed with the native EuroSAT resolution to keep things manageable.
-
-* Train on a more diverse dataset - adding non-EuroSAT imagery would help the model learn what "out-of-domain" looks like.
-
-* Patch-based classification - divide the image into fixed-size patches, classify each independently, and average the results.
-
-I decided not to pursue any of these for this version, and I think that was the right call. This is my first ML project, and I'd rather do one thing well than chase every improvement until the project collapses under its own scope. In software development and ML, there's a name for that trap: **feature creep**, the tendency for a project to grow indefinitely until it becomes a burden rather than a useful thing.
-
-What I did add, based on some feedback, is a confidence threshold (currently set to 85%). If the model's top prediction falls below this threshold, the UI skips the class label entirely and instead displays a message indicating that the image does not appear to be a satellite image. It's not a complete solution, but it prevents the most obviously wrong predictions from being shown as if they were reliable.
-
-<img src="static/docImages/threshold.png" style="margin-left: 15%; width: 50%;">
-
----
-
 ## 💡 Key Learnings
 
 This was my first end-to-end ML project, and the process taught me more than I expected:
 
-- **Transfer learning is powerful, but not magic.** Freezing the base and training a custom head got me to ~92% accuracy with very few epochs. Fine-tuning pushed it to 95%, but required careful learning rate control to avoid breaking the pretrained weights.
-- **More data beats more complexity** at least at this scale. Training on the full train+validation set improved generalization more than any architectural tweak.
-- **The confusion matrix tells the real story.** Aggregate accuracy numbers looked great, but the matrix revealed the River ↔ Highway confusion that raw metrics couldn't, a reminder to always look deeper.
-- **Deployment has its own challenges.** Keras 3 compatibility issues, read-only filesystems on Hugging Face Spaces, and Docker configuration all required debugging that had nothing to do with model training.
-- **UI/UX matters.** Building an intuitive frontend that works on both desktop and mobile was harder than expected, and as rewarding as getting the model to work.
+- **Transfer learning is powerful, but not magic.** Freezing the base and training a custom head got me to ~92% accuracy in very few epochs. Fine-tuning pushed it to 95%, but required careful learning rate control to avoid breaking the pretrained weights.
+- **More data beats more complexity** — at least at this scale. Training on the full train + validation set improved generalization more than any architectural change.
+- **The confusion matrix tells the real story.** Aggregate accuracy looked great, but the matrix revealed the River ↔ Highway confusion that raw numbers couldn't — a reminder to always look deeper than the headline metric.
+- **Deployment has its own learning curve.** Keras 3 compatibility issues, read-only filesystems on Hugging Face Spaces, and Docker configuration all required debugging that had nothing to do with model training.
+- **UI/UX matters.** Building an intuitive frontend that works on both desktop and mobile was harder than expected — and just as rewarding as getting the model to work.
 
 ---
 
@@ -446,6 +411,41 @@ This was my first end-to-end ML project, and the process taught me more than I e
    ```
 
 The app will be available at `http://localhost:5000` by default.
+
+---
+
+## 📂 File Structure
+
+```
+S.I.L.C.  ← top-level folder
+├── model/
+│   └── effnet_model.keras       ← Trained model
+├── static/
+│   ├── css/
+│   │   └── style.css            ← Stylesheet
+│   └── js/
+│       └── script.js            ← Frontend logic
+├── sample_images/               ← One sample per class (+ surprise image)
+│   ├── AnnualCrop.jpg
+│   ├── Forest.jpg
+│   ├── HerbaceousVegetation.jpg
+│   ├── Highway.jpg
+│   ├── Industrial.jpg
+│   ├── Pasture.jpg
+│   ├── PermanentCrop.jpg
+│   ├── Residential.jpg
+│   ├── River.jpg
+│   ├── SeaLake.jpg
+│   └── test.png                 ← Surprise class image
+├── templates/
+│   └── index.html               ← Frontend
+├── app.py                       ← Main Flask application
+├── helper.py                    ← Preprocessing and top-k prediction helpers
+├── requirements.txt             ← Python dependencies
+├── Dockerfile                   ← Docker configuration
+├── Procfile                     ← Configuration for hosting services (e.g. Render)
+└── README.md                    ← This file
+```
 
 ---
 
