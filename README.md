@@ -250,17 +250,26 @@ graph TD
         B[Flask Router - /predict]
         
         subgraph AI_Pipeline [Inference Pipeline]
-            C[PIL/NumPy Preprocessing - 64x64]
+            subgraph Preprocessing [Preprocessing Pipeline]
+                C1[1. Resize to 64x64 & Antialiasing]
+                C2[2. Cast to Float32]
+                C3[3. EfficientNet Normalization]
+                C4[4. Add Batch Dimension]
+            end
+            
             D[EfficientNetB0 Engine]
             E[Softmax Probability Map]
         end
         
-        F{"Confidence Threshold (85%) Check"}
+        F{Confidence Threshold Check}
     end
 
     A --> B
-    B --> C
-    C --> D
+    B --> C1
+    C1 --> C2
+    C2 --> C3
+    C3 --> C4
+    C4 --> D
     D --> E
     E --> F
     F -->|Pass| G[JSON: Top-3 Labels]
