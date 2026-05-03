@@ -9,7 +9,7 @@ app_port: 7860
 
 ![SILC_COVER_IMAGE](static/docImages/silc_cover.png)
 
-# 🛰️ S.I.L.C. — Satellite Image Land Classification
+# 🛰️ S.I.L.C. - Satellite Image Land Classification
 
 S.I.L.C. is a full-stack machine learning system that classifies land types from satellite imagery using a fine-tuned EfficientNet-B0 model trained on the EuroSAT RGB dataset.
 
@@ -38,7 +38,7 @@ Upload a satellite image or try one of the provided sample images.
 
 <img src="static/docImages/stitch_logo.png" alt="Google Stitch logo" height="60">
 
-The UI was built from scratch in HTML, CSS, and vanilla JavaScript, no frameworks. I used [Google Stitch](https://stitch.withgoogle.com/) to sketch the initial layout and structure.
+The UI was built from scratch in HTML, Tailwind CSS, and vanilla JavaScript, no frameworks. I used [Google Stitch](https://stitch.withgoogle.com/) to sketch the initial layout and structure.
 
 <img src="static/docImages/homepage.png" alt="Homepage" width="50%">
 <img src="static/docImages/preview_window.png" alt="Preview window on image selection" width="50%">
@@ -49,7 +49,7 @@ The UI is fully responsive and works equally well on mobile screens.
 
 <img src="static/docImages/mobile_homepage.png" alt="Mobile homepage" style="margin-left: 15%; width: 50%;">
 
-> 🔑 **Note:** UI screenshots above are stitched side-by-side for display purposes — actual section placement will differ in the live app.
+> 🔑 **Note:** UI screenshots above are stitched side-by-side for display purposes - actual section placement will differ in the live app.
 
 - 🐳 **Dockerized deployment** on Hugging Face Spaces
 
