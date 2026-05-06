@@ -424,7 +424,7 @@ S.I.L.C.  ← top-level folder
 │   ├── css/
 │   │   └── style.css            ← Stylesheet
 │   ├── js/
-│   │   └── script.css           ← Frontend logic
+│   │   └── script.js            ← Frontend logic
 |   └── docImages/               ← Images used by README
 |    |   ├── TensorFlow_logo.svg.png
 |    │   ├── architecture.png
